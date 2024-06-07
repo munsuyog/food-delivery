@@ -1,0 +1,145 @@
+#navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1%;
+    border-bottom: 2px solid orange;
+    position: relative;
+}
+.navbar_links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.navbar_logo {
+    color: orange;
+}
+.navbar_link:hover {
+    color: orange;
+}
+.navbar_profile {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+}
+.navbar_profile_img {
+    width: 50px;
+    height: auto;
+    border-radius: 30px;
+}
+.navbar_profile_menu {
+    display: none;
+    gap: 10px;
+    flex-direction: column;
+    position: absolute;
+    top: 40px;
+    right: 0px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 1px 1px 10px 2px rgba(0,0,0,0.3);
+    width: 80%;
+}
+.navbar_profile_menu.active {
+    display: flex;
+}
+.navbar_live_location {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+/* Existing styles... */
+
+.navbar_cart {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .navbar_cart span {
+    margin-left: 8px;
+    font-weight: bold;
+  }
+  
+  .navbar_cart_menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 250px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    border-radius: 4px;
+    z-index: 1000;
+  }
+  
+  .navbar_cart_menu h4 {
+    margin-bottom: 8px;
+  }
+  
+  .navbar_cart_menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 8px 0;
+  }
+  
+  .navbar_cart_menu ul li {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+  
+  .navbar_cart_menu button {
+    width: 100%;
+  }
+
+  /* Existing styles... */
+
+.navbar_cart {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .navbar_cart span {
+    margin-left: 8px;
+    font-weight: bold;
+  }
+  
+  .navbar_cart_menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 250px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    border-radius: 4px;
+    z-index: 1000;
+  }
+  
+  .navbar_cart_menu h4 {
+    margin-bottom: 8px;
+  }
+  
+  .navbar_cart_menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 8px 0;
+  }
+  
+  .navbar_cart_menu ul li {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+  
+  .navbar_cart_menu button {
+    width: 100%;
+  }
+  
+  

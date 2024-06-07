@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+      "target": "es5",
+      "module": "commonjs",
+      "strict": true,
+      "jsx": "react"
+    },
+    "include": [
+      "./src/**/*.ts", // TypeScript files
+      "./src/**/*.tsx", // TypeScript files with JSX
+      "./src/**/*.js", // JavaScript files
+      "./src/**/*.jsx" // JavaScript files with JSX
+    ],
+    "exclude": [
+      "node_modules"
+    ]
+  }
+  
