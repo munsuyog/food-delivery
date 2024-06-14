@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { Button } from '../ui/button';
 
-const DriverMap = () => {
+const DriverMap = ({ customerLocation, restaurantLocation }) => {
   const mapStyles = {
     height: '400px',
     width: '100%'
   };
 
   const [currentPosition, setCurrentPosition] = useState(null);
-  const [restaurantPosition, setRestaurantPosition] = useState({ lat: 40.712776, lng: -74.005974 }); // Example: New York
-  const [customerPosition, setCustomerPosition] = useState({ lat: 40.730610, lng: -73.935242 }); // Example: New York
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -24,14 +22,46 @@ const DriverMap = () => {
     );
   }, []);
 
-  const driverIcon = 'path/to/driver-icon.png';
   const restaurantIcon = 'path/to/restaurant-icon.png';
   const customerIcon = 'path/to/customer-icon.png';
 
   const getNavigationUrl = (destination) => {
-    if (!currentPosition) return '#';
+    if (!currentPosition || !destination) return '#';
     const { lat, lng } = currentPosition;
     return `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${destination.lat},${destination.lng}&travelmode=driving`;
+  };
+
+  // Check if customerLocation and restaurantLocation are defined
+  if (!customerLocation || !restaurantLocation) {
+    return <div>Loading...</div>;
+  }
+
+  const customerPosition = { lat: customerLocation.latitude, lng: customerLocation.longitude };
+  const restaurantPosition = restaurantLocation;
+
+  // Custom marker icons (using Google Maps default markers with different colors)
+  const driverMarkerOptions = {
+    position: currentPosition,
+    icon: {
+      url: `https://maps.google.com/mapfiles/ms/icons/blue-dot.png`, // Blue dot for driver
+    },
+    label: 'Driver',
+  };
+
+  const restaurantMarkerOptions = {
+    position: restaurantPosition,
+    icon: {
+      url: `https://maps.google.com/mapfiles/ms/icons/red-dot.png`, // Red dot for restaurant
+    },
+    label: 'Restaurant',
+  };
+
+  const customerMarkerOptions = {
+    position: customerPosition,
+    icon: {
+      url: `https://maps.google.com/mapfiles/ms/icons/green-dot.png`, // Green dot for customer
+    },
+    label: 'Customer',
   };
 
   return (
@@ -42,23 +72,9 @@ const DriverMap = () => {
           zoom={10}
           center={currentPosition || { lat: 0, lng: 0 }}
         >
-          {currentPosition && (
-            <MarkerF
-              position={currentPosition}
-              icon={driverIcon}
-              label="Driver"
-            />
-          )}
-          <MarkerF
-            position={restaurantPosition}
-            icon={restaurantIcon}
-            label="Restaurant"
-          />
-          <MarkerF
-            position={customerPosition}
-            icon={customerIcon}
-            label="Customer"
-          />
+          {currentPosition && <Marker {...driverMarkerOptions} />}
+          <Marker {...restaurantMarkerOptions} />
+          <Marker {...customerMarkerOptions} />
         </GoogleMap>
         <div className='flex gap-2 mt-2 mb-2 items-center'>
           <h4>Navigate: </h4>

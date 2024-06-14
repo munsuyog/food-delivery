@@ -6,7 +6,7 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
-  const [restaurant, setRestaurant] = useState({ name: "", address: "" });
+  const [restaurant, setRestaurant] = useState({ name: "", address: "", location: {} });
 
   const addToCart = (item) => {
     setCart((prevCart) => {
@@ -27,8 +27,8 @@ export const CartProvider = ({ children }) => {
     setCart([]);
   };
 
-  const setRestaurantDetails = (name, address) => {
-    setRestaurant({ name, address });
+  const setRestaurantDetails = (name, address, location) => {
+    setRestaurant({ name, address, location });
   };
 
   return (

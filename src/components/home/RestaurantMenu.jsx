@@ -36,10 +36,10 @@ const RestaurantMenu = ({ restaurant, onGoBack }) => {
           <Card key={item.id} className="cursor-pointer flex items-center justify-between">
             <CardHeader>
               <CardTitle>{item.name}</CardTitle>
-              <p>${parseFloat(item.price).toFixed(2)}</p> {/* Ensure price is a number */}
+              <p>${parseFloat(item.price).toFixed(2)}</p>
             </CardHeader>
             <CardContent>
-              <Button onClick={() => {addToCart({ ...item, price: parseFloat(item.price) }); setRestaurantDetails(restaurant.restaurantName, restaurant.address)}}>
+              <Button onClick={() => {addToCart({ ...item, price: parseFloat(item.price) }); setRestaurantDetails(restaurant.restaurantName, restaurant.address, restaurant.location)}}>
                 Add to Cart
               </Button>
             </CardContent>

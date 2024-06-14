@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Input } from "../ui/input";
@@ -12,7 +12,8 @@ import { useAuth } from "../contexts/AuthContext";
 const PlaceOrderForm = () => {
   const location = useLocation();
   const { cart, restaurant } = location.state;
-  const {currentUser} = useAuth();
+
+  const { currentUser } = useAuth();
   const [name, setName] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
@@ -21,7 +22,25 @@ const PlaceOrderForm = () => {
   const [amount, setAmount] = useState(
     cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)
   );
-  console.log(currentUser)
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
+
+  useEffect(() => {
+    // Get the current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+        },
+        (error) => {
+          console.error("Error getting location: ", error);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  }, []);
 
   const paypalConfig = {
     clientId: import.meta.env.VITE_PAYPAL_CLIENT,
@@ -65,15 +84,6 @@ const PlaceOrderForm = () => {
             return_url: "http://localhost:5173/success", // Replace with your actual return URL
             cancel_url: "http://localhost:5173/failure", // Replace with your actual cancel URL
           },
-          orderInfo: {
-            // Add order information here
-            name,
-            address1,
-            address2,
-            city,
-            mobileNumber,
-            amount,
-          },
         },
         {
           headers: {
@@ -88,7 +98,6 @@ const PlaceOrderForm = () => {
       if (approvalLink) {
         // Save order details to Firestore with the PayPal order ID as the document name
         const paypalOrderId = orderResponse.data.id;
-        console.log(orderResponse.data)
         const orderData = {
           name,
           address1,
@@ -101,7 +110,11 @@ const PlaceOrderForm = () => {
           restaurant: restaurant, 
           customerId: currentUser.uid,
           customerEmail: currentUser.providerData[0].email,
-          status: "Pending"
+          status: "Pending",
+          customerLocation: {
+            latitude,
+            longitude
+          }
         };
 
         const ordersCollectionRef = doc(db, "orders", paypalOrderId);

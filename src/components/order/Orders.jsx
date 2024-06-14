@@ -66,20 +66,24 @@ const OrdersCustomer = () => {
     <div className='p-4'>
       <h3>Orders</h3>
       <div className='flex flex-col gap-2 mt-2'>
-        {orders && orders.map((order) => (
-          <Card key={order.id} className="p-4 flex justify-between items-center">
-            <div>
-              {order.orderData && order.orderData.cart.map((item) => (
-                <React.Fragment key={item.name}>
-                  <h4>{item.name}</h4>
-                  <p>Quantity: {item.quantity}</p>
-                </React.Fragment>
-              ))}
-              <p>Status: {order.status}</p>
-            </div>
-            <Button onClick={() => { selectOrder(order) }}>View Details</Button>
-          </Card>
-        ))}
+        {orders && orders.map((order) => {
+          if(order.paymentData) {
+            return (
+              <Card key={order.id} className="p-4 flex justify-between items-center">
+                <div>
+                  {order.orderData && order.orderData.cart.map((item) => (
+                    <React.Fragment key={item.name}>
+                      <h4>{item.name}</h4>
+                      <p>Quantity: {item.quantity}</p>
+                    </React.Fragment>
+                  ))}
+                  <p>Status: {order.status}</p>
+                </div>
+                <Button onClick={() => { selectOrder(order) }}>View Details</Button>
+              </Card>
+            )
+          }
+        })}
       </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>

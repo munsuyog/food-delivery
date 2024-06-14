@@ -8,6 +8,8 @@ const OrderTracker = ({ orderId }) => {
   const [orderStatus, setOrderStatus] = useState('Pending'); // Default status is 'Pending'
   const [pickupTime, setPickupTime] = useState(null);
   const [deliveryTime, setDeliveryTime] = useState(null);
+  const [customerLocation, setCustomerLocation] = useState(null);
+  const [restaurantLocation, setRestaurantLocation] = useState(null);
 
   useEffect(() => {
     const orderRef = doc(db, 'orders', orderId);
@@ -19,6 +21,8 @@ const OrderTracker = ({ orderId }) => {
           if (orderData.status) setOrderStatus(orderData.status);
           if (orderData.pickupTime) setPickupTime(orderData.pickupTime.toDate());
           if (orderData.deliveryTime) setDeliveryTime(orderData.deliveryTime.toDate());
+          if (orderData.orderData.customerLocation) setCustomerLocation(orderData.orderData.customerLocation);
+          if (orderData.orderData.restaurant.location) setRestaurantLocation(orderData.orderData.restaurant.location)
         }
       } catch (error) {
         console.error('Error fetching order data: ', error);
@@ -51,7 +55,7 @@ const OrderTracker = ({ orderId }) => {
       <p>Order Status: {orderStatus}</p>
       {pickupTime && <p>Pickup Time: {pickupTime.toLocaleString()}</p>}
       {deliveryTime && <p>Delivery Time: {deliveryTime.toLocaleString()}</p>}
-      <DriverMap />
+      <DriverMap customerLocation={customerLocation} restaurantLocation={restaurantLocation} />
       <div className='flex mt-2 mb-2 items-center'>      
         <h4>Update Status: </h4>
       {/* Buttons to change the order status */}

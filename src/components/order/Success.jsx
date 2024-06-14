@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { encode } from "base-64";
-import { getDoc, setDoc } from "firebase/firestore";
+import { setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../api/firebase";
 import { doc } from "firebase/firestore";
 
@@ -62,18 +62,8 @@ const SuccessPage = () => {
 
         const ordersRef = doc(db, 'orders', paymentData.id);
 
-        // Retrieve existing document data
-        const docSnapshot = await getDoc(ordersRef);
-        const existingData = docSnapshot.data();
-
-        // Merge existing data with new payment data
-        const mergedData = {
-          ...existingData,
-          paymentData: paymentData,
-        };
-
-        // Update the document with the merged data
-        await setDoc(ordersRef, mergedData);
+        // Update the document with the new payment data
+        await updateDoc(ordersRef, { paymentData });
 
         setLoading(false);
         navigate('/orders'); // Use navigate instead of redirect
@@ -82,7 +72,12 @@ const SuccessPage = () => {
         if (error.response && error.response.data) {
           console.error("Error details: ", error.response.data);
         }
-        setError("An error occurred while processing your payment.");
+        if (error.code === 'not-found') {
+          // Document does not exist, create a new one
+          await setDoc(ordersRef, { paymentData });
+        } else {
+          setError("An error occurred while processing your payment.");
+        }
         setLoading(false);
       }
     };

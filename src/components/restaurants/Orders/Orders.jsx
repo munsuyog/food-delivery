@@ -4,13 +4,21 @@ import { db } from "../../../api/firebase";
 import { Card } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { Dialog, DialogTitle, DialogContent } from "../../ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "../../ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "../../ui/dropdown-menu";
 
 const RestaurantOrders = () => {
   const [orders, setOrders] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [orderStatus, setOrderStatus] =  useState("Undefined");
+  const [orderStatus, setOrderStatus] = useState("Undefined");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  console.log(selectedOrder)
 
   useEffect(() => {
     const getOrders = async () => {
@@ -52,19 +60,27 @@ const RestaurantOrders = () => {
     <div className="p-5">
       <h4>Active Orders</h4>
       {orders &&
-        orders.map((order) => (
-          <Card key={order.id} className="p-4 flex justify-between items-center">
-            {order.orderData.cart.map((cart) => (
-              <div key={cart.name}>
-                <h4>{cart.name}</h4>
-                <p>Quantity: {cart.quantity}</p>
-              </div>
-            ))}
-            <div>
-              <Button onClick={() => selectOrder(order)}>Manage</Button>
-            </div>
-          </Card>
-        ))}
+        orders.map((order) => {
+          if (order.paymentData) {
+            return (
+              <Card
+                key={order.id}
+                className="p-4 flex justify-between items-center"
+              >
+                {order.orderData &&
+                  order.orderData.cart.map((cart) => (
+                    <div key={cart.name}>
+                      <h4>{cart.name}</h4>
+                      <p>Quantity: {cart.quantity}</p>
+                    </div>
+                  ))}
+                <div>
+                  <Button onClick={() => selectOrder(order)}>Manage</Button>
+                </div>
+              </Card>
+            );
+          }
+        })}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogTitle>
@@ -85,16 +101,22 @@ const RestaurantOrders = () => {
           </div>
           <div>
             <h4>Customer Details</h4>
-            <p>Name: {selectedOrder.orderData.name}</p>
-            <p>Address: {selectedOrder.orderData.address1}, {selectedOrder.orderData.address2}</p>
+            <p>Name: {selectedOrder ? selectedOrder.orderData.name : ""}</p>
+            <p>
+              Address: {selectedOrder ? selectedOrder.orderData.address1 : ""},{" "}
+              {selectedOrder ? selectedOrder.orderData.address2 : ""}
+            </p>
           </div>
           <div>
             <h4>Payment Details</h4>
             <p>
               Amount: $
-              {selectedOrder
-                ? selectedOrder.paymentData.purchase_units[0].payments
-                    .captures[0].amount.value
+              {selectedOrder &&
+              selectedOrder.paymentData &&
+              selectedOrder.paymentData.purchase_units &&
+              selectedOrder.paymentData.purchase_units[0]
+                ? selectedOrder.paymentData.purchase_units[0]
+                    .amount.value
                 : ""}
             </p>
             <p>

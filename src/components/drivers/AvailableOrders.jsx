@@ -2,16 +2,15 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useLocation } from '../contexts/LocationProvider';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../api/firebase';
-import { Dialog, DialogOverlay, DialogContent, DialogTitle, DialogDescription } from '../ui/dialog'; // Import shadcn components
+import { Dialog, DialogOverlay, DialogContent, DialogTitle, DialogDescription } from '../ui/dialog';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../ui/button';
 
-const AvailableOrders = () => {
+const AvailableOrders = ({ fetchAssignedOrders }) => {
   const { city } = useLocation(); // Assuming useLocation provides city information
   const [availableOrders, setAvailableOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null); // State for selected order
-  const {currentUser} = useAuth();
-  console.log(currentUser)
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     const fetchAvailableOrders = async () => {
@@ -22,7 +21,11 @@ const AvailableOrders = () => {
         const ordersData = ordersSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
-        }));
+        })).filter(order => 
+          order.status !== 'Picked up' && 
+          order.status !== 'Delivered' && 
+          order.status !== 'Accepted by driver'
+        );
         setAvailableOrders(ordersData);
       } catch (error) {
         console.error('Error fetching available orders: ', error);
@@ -46,13 +49,12 @@ const AvailableOrders = () => {
         status: "Accepted by driver", // Set initial status here
       };
       await updateDoc(orderRef, orderData);
-      // Remove the accepted order from the available orders list
+      await fetchAssignedOrders();
       setAvailableOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
     } catch (error) {
       console.error('Error accepting order: ', error);
     }
   };
-  
 
   return (
     <div>
@@ -65,9 +67,7 @@ const AvailableOrders = () => {
                 <p className="text-lg font-bold">Order ID: {order.id}</p>
                 <p>Name: {order.orderData.name}</p>
                 <p>Address: {order.orderData.address1}</p>
-                <Button
-                  onClick={() => handleAcceptOrder(order.id)} // Set selected order when button clicked
-                >
+                <Button onClick={() => handleAcceptOrder(order.id)}>
                   Accept Order
                 </Button>
               </div>
