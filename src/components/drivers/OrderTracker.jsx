@@ -97,7 +97,7 @@ const OrderTracker = ({ orderId }) => {
       <div>
         <Button onClick={openVideoCallModal}>Video Call</Button>
       </div>
-      <VideoCall roomId={roomId} />
+      <VideoCall roomId={roomId} isInitiator={true} />
       {/* <Dialog isOpen={videoCallModal} onDismiss={() => setVideoCallModal(false)}>
         <DialogOverlay />
         <DialogContent>

@@ -148,7 +148,7 @@ const OrdersCustomer = () => {
           </div>
           {selectedOrder &&
           selectedOrder.roomId ? (
-            <VideoCall roomId={selectedOrder.roomId} />
+            <VideoCall roomId={selectedOrder.roomId} isInitiator={false} />
           ) : (
             ""
           )}
