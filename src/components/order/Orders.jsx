@@ -1,10 +1,11 @@
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { db } from '../../api/firebase';
-import { Card } from '../ui/card';
-import { Button } from '../ui/button';
-import { Dialog, DialogTitle, DialogContent } from '../ui/dialog';
+import { collection, getDocs, query, where } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { db } from "../../api/firebase";
+import { Card } from "../ui/card";
+import { Button } from "../ui/button";
+import { Dialog, DialogTitle, DialogContent } from "../ui/dialog";
+import VideoCall from "../common/VideoCall";
 
 const OrdersCustomer = () => {
   const { currentUser } = useAuth();
@@ -18,7 +19,10 @@ const OrdersCustomer = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const q = query(collection(db, "orders"), where("orderData.customerId", "==", currentUser.uid));
+        const q = query(
+          collection(db, "orders"),
+          where("orderData.customerId", "==", currentUser.uid)
+        );
         const querySnapshot = await getDocs(q);
         const ordersData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -49,7 +53,8 @@ const OrdersCustomer = () => {
       order.paymentData.purchase_units[0].payments.captures &&
       order.paymentData.purchase_units[0].payments.captures[0].amount.value
     ) {
-      return order.paymentData.purchase_units[0].payments.captures[0].amount.value;
+      return order.paymentData.purchase_units[0].payments.captures[0].amount
+        .value;
     } else if (
       order &&
       order.paymentData &&
@@ -63,27 +68,38 @@ const OrdersCustomer = () => {
   };
 
   return (
-    <div className='p-4'>
+    <div className="p-4">
       <h3>Orders</h3>
-      <div className='flex flex-col gap-2 mt-2'>
-        {orders && orders.map((order) => {
-          if(order.paymentData) {
-            return (
-              <Card key={order.id} className="p-4 flex justify-between items-center">
-                <div>
-                  {order.orderData && order.orderData.cart.map((item) => (
-                    <React.Fragment key={item.name}>
-                      <h4>{item.name}</h4>
-                      <p>Quantity: {item.quantity}</p>
-                    </React.Fragment>
-                  ))}
-                  <p>Status: {order.status}</p>
-                </div>
-                <Button onClick={() => { selectOrder(order) }}>View Details</Button>
-              </Card>
-            )
-          }
-        })}
+      <div className="flex flex-col gap-2 mt-2">
+        {orders &&
+          orders.map((order) => {
+            if (order) {
+              return (
+                <Card
+                  key={order.id}
+                  className="p-4 flex justify-between items-center"
+                >
+                  <div>
+                    {order.orderData &&
+                      order.orderData.cart.map((item) => (
+                        <React.Fragment key={item.name}>
+                          <h4>{item.name}</h4>
+                          <p>Quantity: {item.quantity}</p>
+                        </React.Fragment>
+                      ))}
+                    <p>Status: {order.status}</p>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      selectOrder(order);
+                    }}
+                  >
+                    View Details
+                  </Button>
+                </Card>
+              );
+            }
+          })}
       </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
@@ -93,26 +109,31 @@ const OrdersCustomer = () => {
           </DialogTitle>
           <div>
             <h4>Items</h4>
-            {selectedOrder && selectedOrder.orderData.cart.map((item) => (
-              <div key={item.name}>
-                <h5>
-                  {item.name} x {item.quantity}
-                </h5>
-              </div>
-            ))}
+            {selectedOrder &&
+              selectedOrder.orderData.cart.map((item) => (
+                <div key={item.name}>
+                  <h5>
+                    {item.name} x {item.quantity}
+                  </h5>
+                </div>
+              ))}
           </div>
           <div>
             <h4>Customer Details</h4>
             <p>Name: {selectedOrder && selectedOrder.orderData.name}</p>
-            <p>Address: {selectedOrder && selectedOrder.orderData.address1}, {selectedOrder && selectedOrder.orderData.address2}</p>
+            <p>
+              Address: {selectedOrder && selectedOrder.orderData.address1},{" "}
+              {selectedOrder && selectedOrder.orderData.address2}
+            </p>
           </div>
           <div>
             <h4>Payment Details</h4>
+            <p>Amount: ${getOrderAmount(selectedOrder)}</p>
             <p>
-              Amount: ${getOrderAmount(selectedOrder)}
-            </p>
-            <p>
-              Status: {selectedOrder && selectedOrder.paymentData ? selectedOrder.paymentData.status : ""}
+              Status:{" "}
+              {selectedOrder && selectedOrder.paymentData
+                ? selectedOrder.paymentData.status
+                : ""}
             </p>
           </div>
           <div>
@@ -125,11 +146,16 @@ const OrdersCustomer = () => {
                 : "Not yet Updated"}
             </p>
           </div>
-          {/* <Button onClick={closeDialog}>Close</Button> */}
+          {selectedOrder &&
+          selectedOrder.roomId ? (
+            <VideoCall roomId={selectedOrder.roomId} />
+          ) : (
+            ""
+          )}
         </DialogContent>
       </Dialog>
     </div>
-  )
-}
+  );
+};
 
 export default OrdersCustomer;

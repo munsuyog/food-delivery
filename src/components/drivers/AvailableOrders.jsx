@@ -5,6 +5,7 @@ import { db } from '../../api/firebase';
 import { Dialog, DialogOverlay, DialogContent, DialogTitle, DialogDescription } from '../ui/dialog';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../ui/button';
+import { v4 as uuidv4 } from 'uuid'; // To generate unique roomId
 
 const AvailableOrders = ({ fetchAssignedOrders }) => {
   const { city } = useLocation(); // Assuming useLocation provides city information
@@ -37,7 +38,10 @@ const AvailableOrders = ({ fetchAssignedOrders }) => {
 
   const handleAcceptOrder = async (orderId) => {
     try {
-      // Update the order document with driver's information and initial status
+      // Generate a unique roomId
+      const roomId = uuidv4();
+
+      // Update the order document with driver's information, initial status, and roomId
       const orderRef = doc(db, 'orders', orderId);
       const driverInfo = {
         name: currentUser.displayName,
@@ -47,6 +51,7 @@ const AvailableOrders = ({ fetchAssignedOrders }) => {
       const orderData = {
         driverInfo,
         status: "Accepted by driver", // Set initial status here
+        roomId, // Add roomId here
       };
       await updateDoc(orderRef, orderData);
       await fetchAssignedOrders();
