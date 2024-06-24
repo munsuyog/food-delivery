@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import Peer from 'simple-peer';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io('https://vc-backend-l30g.onrender.com');
 
 const VideoCall = ({ role, userId, roomId }) => {
   const [peer, setPeer] = useState(null);
