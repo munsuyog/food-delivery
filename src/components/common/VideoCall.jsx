@@ -1,80 +1,77 @@
-import React, { useEffect, useRef } from 'react';
-import SimplePeer from 'simple-peer';
+import React, { useRef, useState, useEffect } from 'react';
+import Peer from 'simple-peer';
 import io from 'socket.io-client';
 
-const VideoCall = ({ roomId, isInitiator }) => {
-  const socketRef = useRef();
-  const peerRef = useRef();
-  const userVideoRef = useRef();
-  const partnerVideoRef = useRef();
+const socket = io('http://localhost:5000');
+
+const VideoCall = () => {
+  const [peer, setPeer] = useState(null);
+  const [stream, setStream] = useState(null);
+  const myVideo = useRef();
+  const userVideo = useRef();
+  const connectionRef = useRef();
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:5000');
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+      setStream(stream);
+      myVideo.current.srcObject = stream;
+    });
 
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        userVideoRef.current.srcObject = stream;
-
-        socketRef.current.emit('join-room', roomId);
-
-        socketRef.current.on('offer', (offer, userId) => {
-          if (isInitiator) return;
-
-          peerRef.current = new SimplePeer({ initiator: false, trickle: false, stream });
-          peerRef.current.signal(offer);
-
-          peerRef.current.on('stream', (remoteStream) => {
-            partnerVideoRef.current.srcObject = remoteStream;
-          });
-
-          peerRef.current.on('signal', (answer) => {
-            socketRef.current.emit('answer', answer, userId);
-          });
-
-          peerRef.current.on('connect', () => {
-            console.log('Peer connected');
-          });
-
-          peerRef.current.on('data', (data) => {
-            console.log('Received data:', data);
-          });
-
-          peerRef.current.on('close', () => {
-            console.log('Peer connection closed');
-          });
-
-          peerRef.current.on('error', (error) => {
-            console.error('Peer connection error:', error);
-          });
-        });
-
-        socketRef.current.on('answer', (answer) => {
-          if (!isInitiator) return;
-          peerRef.current.signal(answer);
-        });
-
-        socketRef.current.on('ice-candidate', (candidate) => {
-          peerRef.current.addIceCandidate(candidate);
-        });
-      })
-      .catch((error) => {
-        console.error('Error accessing media devices:', error);
-      });
-
-    return () => {
-      socketRef.current.disconnect();
-      if (peerRef.current) {
-        peerRef.current.destroy();
+    socket.on('signal', (signal) => {
+      if (peer) {
+        peer.signal(signal);
+      } else {
+        answerCall(signal);
       }
-    };
-  }, [roomId, isInitiator]);
+    });
+  }, []);
+
+  const callUser = () => {
+    const peer = new Peer({
+      initiator: true,
+      trickle: false,
+      stream: stream,
+    });
+
+    peer.on('signal', (data) => {
+      socket.emit('signal', { roomId: 'room-id', signal: data });
+    });
+
+    peer.on('stream', (stream) => {
+      userVideo.current.srcObject = stream;
+    });
+
+    setPeer(peer);
+    connectionRef.current = peer;
+    socket.emit('join', 'room-id');
+  };
+
+  const answerCall = (signal) => {
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+      stream: stream,
+    });
+
+    peer.on('signal', (data) => {
+      socket.emit('signal', { roomId: 'room-id', signal: data });
+    });
+
+    peer.on('stream', (stream) => {
+      userVideo.current.srcObject = stream;
+    });
+
+    peer.signal(signal);
+    setPeer(peer);
+    connectionRef.current = peer;
+    socket.emit('join', 'room-id');
+  };
 
   return (
     <div>
-      <div>
-        <video ref={userVideoRef} autoPlay muted style={{ width: '50%' }} />
-        <video ref={partnerVideoRef} autoPlay style={{ width: '50%' }} />
-      </div>
+      <video playsInline muted ref={myVideo} autoPlay style={{ width: '300px' }} />
+      <video playsInline ref={userVideo} autoPlay style={{ width: '300px' }} />
+      <button onClick={callUser}>Call</button>
     </div>
   );
 };
