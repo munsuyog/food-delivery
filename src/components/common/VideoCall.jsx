@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 
 const socket = io('https://vc-backend-l30g.onrender.com');
 
-const VideoCall = ({ role, userId, roomId }) => {
+const VideoCall = ({ role, userId, roomId, customerId }) => {
   const [peer, setPeer] = useState(null);
   const [stream, setStream] = useState(null);
   const myVideo = useRef();
@@ -82,7 +82,7 @@ const VideoCall = ({ role, userId, roomId }) => {
       <video playsInline muted ref={myVideo} autoPlay style={{ width: '300px' }} />
       <video playsInline ref={userVideo} autoPlay style={{ width: '300px' }} />
       {role === 'driver' && (
-        <button onClick={() => callUser('customerId')}>
+        <button onClick={() => callUser(customerId)}>
           Call Customer
         </button>
       )}
