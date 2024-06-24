@@ -23,6 +23,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/order/book/:foodId" Component={Book} />
         <Route path="/place-order" Component={PlaceOrder} />
         <Route path="/success" Component={SuccessPage} />
+        
       </Routes>
     </BrowserRouter>
     </AuthProvider>

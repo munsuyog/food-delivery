@@ -2,9 +2,9 @@ import React, { useRef, useState, useEffect } from 'react';
 import Peer from 'simple-peer';
 import io from 'socket.io-client';
 
-const socket = io('https://vc-backend-l30g.onrender.com');
+const socket = io('http://localhost:5000');
 
-const VideoCall = () => {
+const VideoCall = ({ role, userId, roomId }) => {
   const [peer, setPeer] = useState(null);
   const [stream, setStream] = useState(null);
   const myVideo = useRef();
@@ -17,16 +17,27 @@ const VideoCall = () => {
       myVideo.current.srcObject = stream;
     });
 
-    socket.on('signal', (signal) => {
+    socket.emit('join', { roomId, role, userId });
+
+    socket.on('signal', (data) => {
       if (peer) {
-        peer.signal(signal);
+        peer.signal(data.signal);
       } else {
-        answerCall(signal);
+        answerCall(data.signal);
       }
     });
+
+    socket.on('failed', (data) => {
+      console.log(data.message);
+      // Handle failed signal attempt
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
-  const callUser = () => {
+  const callUser = (to) => {
     const peer = new Peer({
       initiator: true,
       trickle: false,
@@ -34,7 +45,7 @@ const VideoCall = () => {
     });
 
     peer.on('signal', (data) => {
-      socket.emit('signal', { roomId: 'room-id', signal: data });
+      socket.emit('signal', { roomId, signal: data, from: userId, to });
     });
 
     peer.on('stream', (stream) => {
@@ -43,7 +54,6 @@ const VideoCall = () => {
 
     setPeer(peer);
     connectionRef.current = peer;
-    socket.emit('join', 'room-id');
   };
 
   const answerCall = (signal) => {
@@ -54,7 +64,7 @@ const VideoCall = () => {
     });
 
     peer.on('signal', (data) => {
-      socket.emit('signal', { roomId: 'room-id', signal: data });
+      socket.emit('signal', { roomId, signal: data, from: userId, to: signal.from });
     });
 
     peer.on('stream', (stream) => {
@@ -64,14 +74,23 @@ const VideoCall = () => {
     peer.signal(signal);
     setPeer(peer);
     connectionRef.current = peer;
-    socket.emit('join', 'room-id');
   };
 
   return (
     <div>
+      <h2>{role === 'driver' ? 'Driver' : 'Customer'} Video Call</h2>
       <video playsInline muted ref={myVideo} autoPlay style={{ width: '300px' }} />
       <video playsInline ref={userVideo} autoPlay style={{ width: '300px' }} />
-      <button onClick={callUser}>Call</button>
+      {role === 'driver' && (
+        <button onClick={() => callUser('customerId')}>
+          Call Customer
+        </button>
+      )}
+      {role === 'customer' && (
+        <button onClick={() => callUser('driverId')}>
+          Call Driver
+        </button>
+      )}
     </div>
   );
 };
