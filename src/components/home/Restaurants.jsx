@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import RestaurantList from "./RestaurantList/RestaurantList";
 import RestaurantMenu from "./RestaurantMenu";
+import OrdersPage from "../../pages/Customers/Orders";
 
 const RestaurantApp = () => {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
@@ -20,6 +21,7 @@ const RestaurantApp = () => {
       ) : (
         <RestaurantMenu restaurant={selectedRestaurant} onGoBack={handleGoBack} />
       )}
+      <OrdersPage />
     </div>
   );
 };

@@ -20,6 +20,7 @@ const OrderTracker = ({ orderId }) => {
   const [restaurantLocation, setRestaurantLocation] = useState(null);
   const [roomId, setRoomId] = useState(null);
   const [driverId, setDriverId] = useState(null);
+  const [customerId, setCustomerId] = useState(null);
   const [videoCallModal, setVideoCallModal] = useState(false);
   
   console.log(roomId); // For debugging
@@ -41,7 +42,8 @@ const OrderTracker = ({ orderId }) => {
           if (orderData.orderData.restaurant.location)
             setRestaurantLocation(orderData.orderData.restaurant.location);
           if (orderData.roomId) setRoomId(orderData.roomId);
-          if(orderData.driverInfo.id) setDriverId(orderData.driverInfo.id)
+          if(orderData.driverInfo.id) setDriverId(orderData.driverInfo.id);
+          if(orderData.orderData.customerId) setCustomerId(orderData.orderData.customerId)
         }
       } catch (error) {
         console.error("Error fetching order data: ", error);
@@ -99,7 +101,9 @@ const OrderTracker = ({ orderId }) => {
       <div>
         <Button onClick={openVideoCallModal}>Video Call</Button>
       </div>
-      <VideoCall roomId={roomId} userId={driverId} role="driver" />
+      {
+        roomId && driverId ? <VideoCall roomId={roomId} userId={driverId} role="driver" customerId={customerId} /> : ""
+      }
       {/* <Dialog isOpen={videoCallModal} onDismiss={() => setVideoCallModal(false)}>
         <DialogOverlay />
         <DialogContent>
